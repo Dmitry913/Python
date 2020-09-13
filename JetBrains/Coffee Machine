@@ -1,0 +1,105 @@
+class CoffeeMachine:
+    def __init__(self):
+        self.state = "Main menu"
+        self.water = 400
+        self.milk = 540
+        self.beans = 120
+        self.cups = 9
+        self.money = 550
+
+    def get_info(self):
+        print("The coffee machine has:")
+        print(self.water, "of water")
+        print(self.milk, "of milk")
+        print(self.beans, "of coffee beans")
+        print(self.cups, "of disposable cups")
+        print("$" + str(self.money), "of money")
+
+    def checking(self, coffee):
+        if self.cups < 1:
+            print("Sorry, not enough disposable cups")
+            return
+        if coffee == 1:
+            if self.water < 250:
+                print("Sorry, not enough water!")
+                return False
+            elif self.beans < 16:
+                print("Sorry, not enough coffee beans!")
+                return False
+            return True
+        elif coffee == 2:
+            if self.water < 350:
+                print("Sorry, not enough water!")
+                return False
+            elif self.beans < 20:
+                print("Sorry, not enough coffee beans!")
+                return False
+            elif self.milk < 75:
+                return False
+            return True
+        else:
+            if self.water < 200:
+                print("Sorry, not enough water!")
+                return False
+            elif self.beans < 12:
+                print("Sorry, not enough coffee beans!")
+                return False
+            elif self.milk < 100:
+                return False
+            return True
+
+    def buy_coffee(self, type_coffee):
+        if not CoffeeMachine.checking(self, type_coffee):
+            return
+        if type_coffee == 1:
+            self.water -= 250
+            self.beans -= 16
+            self.money += 4
+        elif type_coffee == 2:
+            self.water -= 350
+            self.milk -= 75
+            self.beans -= 20
+            self.money += 7
+        else:
+            self.water -= 200
+            self.milk -= 100
+            self.beans -= 12
+            self.money += 6
+        self.cups -= 1
+
+    def fill_coffee(self):
+        print("Write how many ml of water do you want to add:")
+        self.water += int(input().strip())
+        print("Write how many ml of milk do you want to add:")
+        self.milk += int(input().strip())
+        print("Write how many grams of coffee beans do you want to add:")
+        self.beans += int(input().strip())
+        print("Write how many disposable cups of coffee do you want to add:")
+        self.cups += int(input().strip())
+
+    def take_money(self):
+        print("I gave you $" + str(self.money))
+        self.money = 0
+
+    def change_state(self, new_state):
+        self.state = new_state
+        if new_state == "exit":
+            return False
+        elif self.state == "buy":
+            type_ = input("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:").strip()
+            if type_ != "back":
+                self.buy_coffee(int(type_))
+        elif self.state == "take":
+            CoffeeMachine.take_money(self)
+        elif self.state == "fill":
+            CoffeeMachine.fill_coffee(self)
+        else:
+            CoffeeMachine.get_info(self)
+        self.state = "Main menu"
+        return True
+
+
+coffee_machine = CoffeeMachine()
+while True:
+    if coffee_machine.change_state(input("Write action (buy, fill, take, remaining, exit):\n").strip()):
+        break
