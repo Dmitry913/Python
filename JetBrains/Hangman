@@ -1,0 +1,42 @@
+import random
+import string
+
+
+def get_input():
+    my_input = ''
+    while my_input not in ('exit', 'play'):
+        my_input = input('Type "play" to play the game, "exit" to quit: ').strip()
+    return my_input
+
+
+print("H A N G M A N \n")
+while get_input() != 'exit':
+    current_word = random.choice(['python', 'java', 'kotlin', 'javascript'])
+    word = '-'*len(current_word)
+    attempts = ''
+    counter_lives = 8
+    while counter_lives > 0 and word != current_word:
+        print()
+        letter = input(word+' \n'+'Input a letter: ').strip()
+        if letter in attempts:
+            print("You already typed this letter")
+            # print("You've already guessed this letter ")
+        elif len(letter) != 1:
+            print("You should input a single letter")
+        elif str(letter) not in string.ascii_lowercase:
+            print("It is not an ASCII lowercase letter")
+            # print("Please enter a lowercase English letter")
+        elif letter in current_word:
+            attempts += letter
+            for index in range(len(current_word)):
+                if current_word[index] == letter:
+                    word = word[:index] + letter + word[index+1:]
+        else:
+            print("No such letter in the word")
+            # print("That letter doesn't appear in the word")
+            attempts += letter
+            counter_lives -= 1
+    if word == current_word:
+        print('You guessed the word! \nYou survived!')
+    else:
+        print('You lost!\n')
