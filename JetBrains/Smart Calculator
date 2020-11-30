@@ -1,0 +1,183 @@
+import string
+from collections import deque
+
+
+def right_sing(my_string):
+    if '-' in my_string:
+        if len(my_string) % 2:
+            return '-'
+    return '+'
+
+
+def command(string):
+    if string == '/exit':
+        return True
+    elif string == '/help':
+        print('The program calculates the sum of numbers')
+        return False
+    else:
+        print("Unknown command")
+        return False
+
+
+def type_input(my_data):  # команда, присваивание, выражение или ещё что-то
+    if my_data and my_data[0] == '/':
+        return 'command'
+    elif '=' in my_data or len(my_data.split()) == 1:
+        return 'assignment'
+    else:
+        return 'expression'
+
+
+def valid_identifier(identifier):
+    for letter in identifier:
+        if letter not in string.ascii_letters:
+            return False
+
+    return True
+
+
+def do_assignment(assignment):
+    assignment = assignment.split('=')
+    assignment = [elem.strip() for elem in assignment]
+    if len(assignment) > 2:
+        print('Invalid assignment')
+        return False
+    if not valid_identifier(assignment[0]):
+        print('Invalid identifier')
+        return False
+    if len(assignment) == 1:
+        if assignment[0] in variables:
+            print(variables[assignment[0]])
+            return True
+        else:
+            print('Unknown variable')
+            return False
+    try:
+        variables[assignment[0]] = int(assignment[1])
+    except ValueError:
+        if assignment[1] in variables:
+            variables[assignment[0]] = variables[assignment[1]]
+        else:
+            if not valid_identifier(assignment[1]):
+                print('Invalid assignment')
+                return False
+            print('Unknown variable')
+            return False
+    return True
+
+
+def more_priority(first, second):  # first more second
+    more = '*/'
+    less = '+-'
+    return (first in more) and (second in less)
+
+
+def string_to_arr(my_string):
+    result = []
+    num = ''
+    i = 0
+    while i != len(my_string):
+        if my_string[i] not in '+-/*()':
+            num += my_string[i]
+        else:
+            while i < len(my_string) - 1 and my_string[i + 1] == my_string[i]:
+                if my_string[i] in '*/':
+                    raise ValueError
+                i += 1
+            if num:
+                result.append(num)
+                num = ''
+            result.append(my_string[i])
+        i += 1
+    if num:
+        result.append(num)
+    return result
+
+
+def in_to_post(expression):
+    result = ''
+    stack_operand = deque()
+    expression = string_to_arr(expression)
+
+    for elem in expression:
+        if elem in '+-/*()':
+            if (not stack_operand) or (stack_operand[-1] == '('):
+                stack_operand.append(elem)
+            elif more_priority(elem, stack_operand[-1]):
+                stack_operand.append(elem)
+            elif elem == '(':
+                stack_operand.append(elem)
+            elif elem == ')':
+                while stack_operand[-1] != '(':
+                    result += ' ' + stack_operand.pop()
+                    if not stack_operand:
+                        raise ValueError
+                stack_operand.pop()
+            else:
+                while stack_operand and stack_operand[-1] != '(' and not more_priority(elem, stack_operand[-1]):
+                    result += ' ' + stack_operand.pop()
+                stack_operand.append(elem)
+        else:
+            result += ' ' + elem
+    while stack_operand:
+        letter = stack_operand.pop()
+        if letter in '()':
+            raise ValueError
+        else:
+            result += ' ' + letter
+    return result.split()
+
+
+def calculate_post(post_expression):
+    stack = deque()
+    for elem in post_expression:
+        if elem in '+-/*':
+            result = 0
+            b = int(stack.pop())
+            a = int(stack.pop())
+            if elem == '+':
+                result = a + b
+            elif elem == '-':
+                result = a - b
+            elif elem == '*':
+                result = a * b
+            elif b != 0:
+                result = a / b
+            else:
+                raise ValueError
+            stack.append(result)
+        else:
+            if elem in variables:
+                stack.append(variables[elem])
+            else:
+                stack.append(elem)
+    return stack.pop()
+
+
+def do_expression(expression):
+    result = 0
+    try:
+        if expression:
+            result = calculate_post(in_to_post(expression))
+            print(result)
+    except ValueError:
+        print('Invalid expression')
+
+
+variables = {}
+
+
+while True:
+    enter_date = input().strip()
+    type_command = type_input(enter_date)
+    if type_command == 'command':
+        if command(enter_date):
+            break
+        else:
+            continue
+    elif type_command == 'assignment':
+        do_assignment(enter_date)
+    elif type_command == 'expression':
+        do_expression(enter_date)
+print('Bye!')
