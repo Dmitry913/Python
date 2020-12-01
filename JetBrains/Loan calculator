@@ -1,0 +1,70 @@
+import math
+import argparse
+
+
+def right_date(date):
+    years = date // 12
+    month = date % 12
+    years = str(years) + (' years' if years > 1 else ' year')
+    month = str(month) + (' months' if month > 1 else ' month')
+    if years[0] == '0':
+        return month
+    elif month[0] == '0':
+        return years
+    else:
+        return years + ' and ' + month
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--type')
+parser.add_argument('--principal')
+parser.add_argument('--periods')
+parser.add_argument('--interest')
+parser.add_argument('--payment')
+args = parser.parse_args()
+
+loan_principal = float(args.principal) if args.principal else None  # p
+monthly_payment = float(args.payment) if args.payment else None  # a
+number_payments = int(args.periods) if args.periods else None  # n
+loan_interest = float(args.interest) if args.interest else None
+
+if args.type == 'diff':
+    if (monthly_payment is not None) or not loan_principal or not number_payments or not loan_interest:
+        print('Incorrect parameters.')
+    else:
+        loan_interest = loan_interest / 1200
+        overpay = 0
+        for i in range(1, number_payments + 1):
+            dif_pay = loan_principal / number_payments + loan_interest * (loan_principal - loan_principal * (i - 1) / number_payments)
+            overpay += math.ceil(dif_pay)
+            print(f'Month {i}: payment is {math.ceil(dif_pay)}')
+        print(f'Overpayment = {overpay - loan_principal}')
+elif args.type == 'annuity':
+    type_calculate = None
+    try:
+        if loan_principal is None and monthly_payment and number_payments:
+            type_calculate = 'p'
+        elif monthly_payment is None and number_payments:
+            type_calculate = 'a'
+        elif number_payments is None:
+            type_calculate = 'n'
+        else:
+            raise ValueError
+        if loan_interest:
+            i = float(loan_interest) / 1200
+        else:
+            raise ValueError
+        if type_calculate == 'n':
+            number_payments = math.ceil(math.log(monthly_payment / (monthly_payment - i * loan_principal), 1 + i))
+            print(f'It will take {right_date(number_payments)} to repay this loan!')
+        elif type_calculate == 'a':
+            monthly_payment = loan_principal * i * pow((1 + i), number_payments) / (pow((1 + i), number_payments) - 1)
+            print(f'Your monthly payment = {math.ceil(monthly_payment)}!')
+        else:
+            loan_principal = monthly_payment / (i * pow((1 + i), number_payments) / (pow((1 + i), number_payments) - 1))
+            print(f'Your loan principal = {loan_principal}!')
+        print(f'Overpayment = {number_payments * math.ceil(monthly_payment) - loan_principal}')
+    except ValueError:
+        print('Incorrect parameters.')
+else:
+    print('Incorrect parameters.')
