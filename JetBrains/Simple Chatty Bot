@@ -1,0 +1,38 @@
+bot_name = 'Alice'
+birth_year = 2020
+
+print(f'''Hello! My name is {bot_name}.
+I was created in {birth_year}.
+Please, remind me your name.''')
+
+user_name = input()
+
+print(f'''What a great name you have, {user_name}!
+Let me guess your age.
+Enter remainders of dividing your age by 3, 5 and 7.''')
+
+remainder3, remainder5, remainder7 = (int(input()) for _ in range(3))
+your_age = (remainder3 * 70 + remainder5 * 21 + remainder7 * 15) % 105
+print(f"Your age is {your_age}; that's a good time to start programming!")
+print('Now I will prove to you that I can count to any number you want.')
+
+repeat = int(input())
+
+for i in range(repeat + 1):
+    print(f'{i} !')
+
+print('''Let's test your programming knowledge.
+Why do we use methods?
+1. To repeat a statement multiple times.
+2. To decompose a program into several small subroutines.
+3. To determine the execution time of a program.
+4. To interrupt the execution of a program.''')
+
+while True:
+    answer = input()
+    if answer == '2':
+        break
+    else:
+        print('Please, try again.')
+print('''Completed, have a nice day!
+Congratulations, have a nice day!''')
